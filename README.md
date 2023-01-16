@@ -13,4 +13,4 @@ Fronted is implemented with
 - node.js 
 - react framework
 - socket.io
-- Chakra ui for cleaner user interface
+- material-react-table
