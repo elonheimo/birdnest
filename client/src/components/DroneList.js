@@ -9,18 +9,23 @@ import {
   TableContainer,
   Box
 } from '@chakra-ui/react'
-const DroneList = ({socket, initialLoadURL}) => { 
+const DroneList = ({socket, allDronesURL}) => { 
     const [drones, setDrones] = useState([])
-    useEffect(() => {
-      async function initialFetch(){
-        const res = await fetch(initialLoadURL)
-        const json = await res.json()
-        console.log(res)
-        setDrones(json)
-      }
-      initialFetch()
-    }, [initialLoadURL])
+
+    
+
     useEffect(()=> {
+        async function resetDrones(){
+          const res = await fetch(allDronesURL)
+          const json = await res.json()
+          console.log(res)
+          setDrones(json)
+        }
+
+        socket.on(
+          "connect",
+          () => resetDrones()
+        )
         socket.on(
           "newDrone",
           data => setDrones([...drones, data]
@@ -31,30 +36,25 @@ const DroneList = ({socket, initialLoadURL}) => {
             drones.filter( drone => drone.serialNumber !== data.serialNumber)
           )
         )
+
+        const updateDroneArray = (data) => {
+          const sameDroneInUpdateData = (serialNumber) =>
+            data.find(dataDrone => dataDrone.serialNumber === serialNumber) 
+          setDrones(drones.map(
+            drone => {
+              const updatedDrone = sameDroneInUpdateData(drone.serialNumber) 
+              return updatedDrone 
+                ? updatedDrone
+                : drone
+            }
+          ))
+        }
+
         socket.on(
           "updateDrones",
-          data => {
-            console.log(`updatedrones ${JSON.stringify(data)}`)
-            const shouldBeUpdated = (serialNumber) => data
-              .find(dataDrone => dataDrone.serialNumber === serialNumber) 
-            setDrones(
-              drones.map(
-                drone => {
-                  const updatedDrone = shouldBeUpdated(drone.serialNumber) 
-                  return updatedDrone 
-                    ? updatedDrone
-                    : drone
-                }
-              )
-            )
-          }
+          data => updateDroneArray(data)
         )
-        console.log(drones)
-      }, [socket, drones])
-
-    /*
-    Add remove drone
-    */
+    }, [socket, drones, allDronesURL])
 
     if (drones.length === 0) {
       return ('loading')
@@ -79,7 +79,7 @@ const DroneList = ({socket, initialLoadURL}) => {
                 .map(drone => 
                 <Tr key={drone.serialNumber}>
                   <Td>{drone.minNestDistance}</Td>
-                  <Td>{drone.lastSeen.slice(11,23)}</Td>
+                  <Td>{new Date(drone.lastSeen).toLocaleTimeString()}</Td>
                   {drone.pilot &&
                     <>
                       <Td>{`${drone.pilot.firstName} ${drone.pilot.lastName}`}</Td>
