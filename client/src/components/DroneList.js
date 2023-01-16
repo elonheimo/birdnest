@@ -1,14 +1,6 @@
-import React, { useEffect, useState} from 'react'
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Box
-} from '@chakra-ui/react'
+import React, { useEffect, useState, useMemo} from 'react'
+import MaterialReactTable from 'material-react-table';
+
 const DroneList = ({socket, allDronesURL}) => { 
     const [drones, setDrones] = useState([])
 
@@ -56,10 +48,42 @@ const DroneList = ({socket, allDronesURL}) => {
         )
     }, [socket, drones, allDronesURL])
 
-    if (drones.length === 0) {
+    const columns = useMemo(
+      () => [
+        { 
+          accessorFn: (row) => (row.minNestDistance/1000.0).toFixed(2),
+          id: 'minNestDistance',
+          header: 'Closest to nest (meters)',
+        }, {
+          accessorFn: (row) => new Date(row.lastSeen).toLocaleTimeString(),
+          id: 'lastSeen',
+          header: 'Last seen',
+        }, {
+          accessorFn: 
+          (row) => row.pilot
+            ?`${row?.pilot?.firstName} ${row?.pilot?.lastName}`
+            :`pilot info unavailable`,
+          id: 'name',
+          header: 'Name',
+        }, {
+          accessorFn: (row) => row?.pilot?.email,
+          id: 'email',
+          header: 'Email',
+        }, {
+          accessorFn: (row) => row?.pilot?.phoneNumber,
+          id: 'phoneNumber',
+          header: 'Phone number',
+        }
+      ],
+      [],
+      );
+    /* if (drones.length === 0) {
       return ('loading')
-    }
+    } */
     return (
+      <MaterialReactTable columns={columns} data={drones} />
+    )
+    /* return (
       <Box w='100%' p={10} overflowX="auto">
 
         <TableContainer borderWidth='1px' borderRadius='lg'>
@@ -94,7 +118,7 @@ const DroneList = ({socket, allDronesURL}) => {
           </Table>
         </TableContainer>
       </Box>
-    )
+    ) */
   }
   
   export default DroneList
