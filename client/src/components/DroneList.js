@@ -78,7 +78,7 @@ const DroneList = ({socket, allDronesURL}) => {
               {drones
                 .map(drone => 
                 <Tr key={drone.serialNumber}>
-                  <Td>{drone.minNestDistance}</Td>
+                  <Td>{(drone.minNestDistance/1000.0).toFixed(2)}</Td>
                   <Td>{new Date(drone.lastSeen).toLocaleTimeString()}</Td>
                   {drone.pilot &&
                     <>
