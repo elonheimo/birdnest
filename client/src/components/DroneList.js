@@ -3,11 +3,9 @@ import {
   Table,
   Thead,
   Tbody,
-  Tfoot,
   Tr,
   Th,
   Td,
-  TableCaption,
   TableContainer,
   Box
 } from '@chakra-ui/react'
@@ -23,7 +21,34 @@ const DroneList = ({socket, initialLoadURL}) => {
       initialFetch()
     }, [initialLoadURL])
     useEffect(()=> {
-        socket.on("newDrone", data => setDrones([...drones, data]))
+        socket.on(
+          "newDrone",
+          data => setDrones([...drones, data]
+        ))
+        socket.on(
+          "removeDrone",
+          data => setDrones(
+            drones.filter( drone => drone.serialNumber !== data.serialNumber)
+          )
+        )
+        socket.on(
+          "updateDrones",
+          data => {
+            console.log(`updatedrones ${JSON.stringify(data)}`)
+            const shouldBeUpdated = (serialNumber) => data
+              .find(dataDrone => dataDrone.serialNumber === serialNumber) 
+            setDrones(
+              drones.map(
+                drone => {
+                  const updatedDrone = shouldBeUpdated(drone.serialNumber) 
+                  return updatedDrone 
+                    ? updatedDrone
+                    : drone
+                }
+              )
+            )
+          }
+        )
         console.log(drones)
       }, [socket, drones])
 
@@ -35,8 +60,7 @@ const DroneList = ({socket, initialLoadURL}) => {
       return ('loading')
     }
     return (
-      <>
-      <Box w='100%' p={10}>
+      <Box w='100%' p={10} overflowX="auto">
 
         <TableContainer borderWidth='1px' borderRadius='lg'>
           <Table variant='striped' colorScheme='telegram'>
@@ -44,7 +68,9 @@ const DroneList = ({socket, initialLoadURL}) => {
               <Tr>
                 <Th>minNestDistance</Th>
                 <Th>lastSeen</Th>
-                <Th>Serial number</Th>
+                <Th>Pilot name</Th>
+                <Th>email</Th>
+                <Th>phone</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -53,11 +79,14 @@ const DroneList = ({socket, initialLoadURL}) => {
                 .map(drone => 
                 <Tr key={drone.serialNumber}>
                   <Td>{drone.minNestDistance}</Td>
-                  <Td>{drone.lastSeen}</Td>
-                  <Td>{drone.serialNumber}</Td>
-                  {drone.pilot && console.log(drone.pilot) &&
-                    <Td>{drone.pilot.firstName}</Td>
+                  <Td>{drone.lastSeen.slice(11,23)}</Td>
+                  {drone.pilot &&
+                    <>
+                      <Td>{`${drone.pilot.firstName} ${drone.pilot.lastName}`}</Td>
+                      <Td>{`${drone.pilot.email}`}</Td>
+                    </>
                   }
+                  <Td>{drone.pilot.phoneNumber}</Td>
                 </Tr>
               )}
               
@@ -65,13 +94,6 @@ const DroneList = ({socket, initialLoadURL}) => {
           </Table>
         </TableContainer>
       </Box>
-      {/* <div>
-          {drones.map(drone => <li key={drone.id}>
-            {JSON.stringify(drone)}
-          </li>
-          )}
-        </div> */}
-      </>
     )
   }
   
