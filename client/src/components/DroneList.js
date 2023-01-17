@@ -1,16 +1,14 @@
 import React, { useEffect, useState, useMemo} from 'react'
 import MaterialReactTable from 'material-react-table';
+import { Box, Grid } from '@mui/material';
 
 const DroneList = ({socket, allDronesURL}) => { 
     const [drones, setDrones] = useState([])
-
     
-
     useEffect(()=> {
         async function resetDrones(){
           const res = await fetch(allDronesURL)
           const json = await res.json()
-          console.log(res)
           setDrones(json)
         }
 
@@ -76,49 +74,21 @@ const DroneList = ({socket, allDronesURL}) => {
         }
       ],
       [],
-      );
-    /* if (drones.length === 0) {
-      return ('loading')
-    } */
-    return (
-      <MaterialReactTable columns={columns} data={drones} />
-    )
-    /* return (
-      <Box w='100%' p={10} overflowX="auto">
+    );
 
-        <TableContainer borderWidth='1px' borderRadius='lg'>
-          <Table variant='striped' colorScheme='telegram'>
-            <Thead>
-              <Tr>
-                <Th>minNestDistance</Th>
-                <Th>lastSeen</Th>
-                <Th>Pilot name</Th>
-                <Th>email</Th>
-                <Th>phone</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              
-              {drones
-                .map(drone => 
-                <Tr key={drone.serialNumber}>
-                  <Td>{(drone.minNestDistance/1000.0).toFixed(2)}</Td>
-                  <Td>{new Date(drone.lastSeen).toLocaleTimeString()}</Td>
-                  {drone.pilot &&
-                    <>
-                      <Td>{`${drone.pilot.firstName} ${drone.pilot.lastName}`}</Td>
-                      <Td>{`${drone.pilot.email}`}</Td>
-                    </>
-                  }
-                  <Td>{drone.pilot.phoneNumber}</Td>
-                </Tr>
-              )}
-              
-            </Tbody>
-          </Table>
-        </TableContainer>
-      </Box>
-    ) */
+    return (
+      <Grid 
+        sx={{ overflow: "auto" , maxWidth: 1200}}
+      >
+        <Box sx={{ width: "100%", display: "table", tableLayout: "fixed" }}>
+          <MaterialReactTable 
+          columns={columns}
+          data={drones}
+          autoResetPageIndex={false}
+          />
+        </Box>
+      </Grid>
+    )
   }
   
   export default DroneList

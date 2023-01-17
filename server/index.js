@@ -2,14 +2,11 @@ const { getDrones, startListeningDrones } = require('./drones')
 const express = require("express")
 const cors = require("cors")
 const app = express()
-const http = require('http').Server(app);
+const server = require('http').createServer(app);
 app.use(cors())
-const PORT = 4000
-const socketIO = require('socket.io')(http, {
-    cors: {
-        origin: "http://localhost:3000"
-    }
-});
+app.use(express.static('build'))
+const PORT = process.env.PORT || 3000
+const socketIO = require('socket.io')(server);
 
 startListeningDrones(socketIO)
 
@@ -27,6 +24,6 @@ app.get("/api/drones/", (req, res) => {
 });
 
 
-http.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
 });
