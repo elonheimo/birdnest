@@ -1,7 +1,7 @@
 # Project birdnest 
 
 ## Deployed at [birdnest2023.fly.dev](https://birdnest2023.fly.dev/)
-
+## !!! Reactor no longer maintains their api there for there is no live data being displayed
 Link to [assignment](https://assignments.reaktor.com/birdnest/)
 
 This is my submission to Reaktor for summer 2023 trainee application.
